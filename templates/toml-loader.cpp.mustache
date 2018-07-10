@@ -4,6 +4,8 @@
 #include "{{name}}"
 {{/includes}}
 #include <cpptoml.h>
+#include <unordered_set>
+#include <iostream>
 #include <exception>
 
 namespace protomodel {
@@ -15,6 +17,7 @@ class LoadError : public std::exception
 public:
   LoadError() = delete;
   LoadError(const char *motive) : _motive{ motive } {}
+  LoadError(const std::string &motive) : _motive{ motive } {}
 
   virtual const char *what() const noexcept override
   { return _motive.c_str(); }
@@ -66,6 +69,11 @@ static void _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::
 static void
 _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type}} &cfg)
 {
+  /* Create a set containing all the parameters within the toml table */
+  std::unordered_set<std::string> visited_keys;
+  for (const auto it : *elem)
+  { visited_keys.insert(it.first); }
+
   {{#values}}{{! ----------------------------------------------------------- }}
   { /* Decoding numerical value '{{name}}' */
     if (elem->contains("{{name}}"))
@@ -79,6 +87,7 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
     else
     { throw LoadError("Failed to find required element '{{name}}' in table '{{table_name}}'"); }
     {{/required}}
+    visited_keys.erase("{{name}}");
   }
   {{/values}}{{! ----------------------------------------------------------- }}
   {{#repeated_values}}{{! -------------------------------------------------- }}
@@ -102,6 +111,7 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
       }
     }
     _check_count("{{table_name}}.{{name}}", count, {{at_least}}u, {{at_most}}u);
+    visited_keys.erase("{{name}}");
   }
   {{/repeated_values}}{{! -------------------------------------------------- }}
   {{#objects}}{{! ---------------------------------------------------------- }}
@@ -116,6 +126,7 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
     else
     { throw LoadError("Failed to find required element '{{name}}' in table '{{table_name}}'"); }
     {{/required}}
+    visited_keys.erase("{{name}}");
   }
   {{/objects}}{{! ---------------------------------------------------------- }}
   {{#repeated_objects}}{{! ------------------------------------------------- }}
@@ -133,6 +144,7 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
       }
     }
     _check_count("{{table_name}}.{{name}}", count, {{at_least}}u, {{at_most}}u);
+    visited_keys.erase("{{name}}");
   }
   {{/repeated_objects}}{{! ------------------------------------------------- }}
   {{#maps}}{{! ------------------------------------------------------------- }}
@@ -158,8 +170,17 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
       }
     }
     _check_count("{{table_name}}.{{name}}", count, {{at_least}}u, {{at_most}}u);
+    visited_keys.erase("{{name}}");
   }
   {{/maps}}{{! ------------------------------------------------------------- }}
+
+  if (! visited_keys.empty())
+  {
+    std::string msg{ "Unknown elements in instantiation of {{table_name}}:" };
+    for (const auto &key : visited_keys)
+    { msg += ' ' + key; }
+    throw LoadError(msg);
+  }
 }
 
 /*****************************************************************************/
