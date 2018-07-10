@@ -1,0 +1,29 @@
+/* protomodel-generated configuration loader header for {{name}} */
+
+#ifndef PROTOMODEL_GENERATED_{{name}}__
+#define PROTOMODEL_GENERATED_{{name}}__
+
+{{#includes}}
+#include "{{name}}"
+{{/includes}}
+#include <string>
+
+namespace protomodel {
+
+/**
+ * Exception thrown then a load error occurs during the execution of load()
+ */
+class LoadError;
+
+/**
+ * Load a {{root_type}} configuration from a TOML file @p file
+ *
+ * @param[in] file Path to the TOML file containing the configuration
+ * @return A flatbuffers instance of the configuration.
+ * @note This function throws on error.
+ */
+{{root_type}} load(const std::string &file);
+
+} /* namespace protomodel */
+
+#endif /* ! PROTOMODEL_GENERATED_{{name}}__ */

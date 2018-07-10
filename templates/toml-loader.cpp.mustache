@@ -1,0 +1,246 @@
+/* protomodel-generated configuration loader for {{name}} */
+
+{{#includes}}
+#include "{{name}}"
+{{/includes}}
+#include <cpptoml.h>
+#include <exception>
+
+namespace protomodel {
+
+/*****************************************************************************/
+
+class LoadError : public std::exception
+{
+public:
+  LoadError() = delete;
+  LoadError(const char *motive) : _motive{ motive } {}
+
+  virtual const char *what() const noexcept override
+  { return _motive; }
+
+private:
+  const char *const _motive;
+};
+
+/*****************************************************************************/
+/* Compile-Time Association of a C++ type to a TOML type */
+
+template<class U, class V> struct TypeMap { typedef U cpp; typedef V toml; };
+template <typename T> struct IntMap : TypeMap<T, int64_t> {};
+template <typename T> struct FloatMap : TypeMap<T, double> {};
+template <typename T> struct TypeCast {};
+template <> struct TypeCast<int32_t> : IntMap<int32_t> {};
+template <> struct TypeCast<uint32_t> : IntMap<uint32_t> {};
+template <> struct TypeCast<int64_t> : IntMap<int64_t> {};
+template <> struct TypeCast<uint64_t> : IntMap<uint64_t> {};
+template <> struct TypeCast<float> : FloatMap<float> {};
+template <> struct TypeCast<double> : FloatMap<double> {};
+template <> struct TypeCast<std::string> : TypeMap<std::string, std::string> {};
+template <> struct TypeCast<bool> : TypeMap<bool, bool> {};
+
+
+/*****************************************************************************/
+
+{{#tables}}
+static void _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type}} &cfg);
+{{/tables}}
+
+/*****************************************************************************/
+
+{{#tables}}
+static void
+_load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type}} &cfg)
+{
+  {{#numerical_values}}{{! ------------------------------------------------- }}
+  { /* Decoding numerical value '{{name}}' */
+    if (elem->contains("{{name}}"))
+    {
+      const auto val = elem->get_as<{{type}}>("{{name}}");
+      if (! val)
+      { throw LoadError("{{table_name}}.{{name}} could not be retrieved as {{type}}"); }
+      cfg.{{name}} = *val;
+    }
+    {{#required}}
+    else
+    { throw LoadError("Failed to find required element '{{name}}' in table '{{table_name}}'"); }
+    {{/required}}
+  }
+  {{/numerical_values}}{{! ------------------------------------------------- }}
+  {{#boolean_values}}{{! --------------------------------------------------- }}
+  { /* Decoding boolean value '{{name}}' */
+    if (elem->contains("{{name}}"))
+    {
+      const auto val = elem->get_as<bool>("{{name}}");
+      if (! val)
+      { throw LoadError("{{table_name}}.{{name}} could not be retrieved as a boolean"); }
+      cfg.{{name}} = *val;
+    }
+    {{#required}}
+    else
+    { throw LoadError("Failed to find required element '{{name}}' in table '{{table_name}}'"); }
+    {{/required}}
+  }
+  {{/boolean_values}}{{! --------------------------------------------------- }}
+  {{#string_values}}{{! ---------------------------------------------------- }}
+  { /* Decoding string value '{{name}}' */
+    if (elem->contains("{{name}}"))
+    {
+      const auto val = elem->get_as<std::string>("{{name}}");
+      if (! val)
+      { throw LoadError("{{table_name}}.{{name}} could not be retrieved as a string"); }
+      cfg.{{name}} = *val;
+    }
+    {{#required}}
+    else
+    { throw LoadError("Failed to find required element '{{name}}' in table '{{table_name}}'"); }
+    {{/required}}
+  }
+  {{/string_values}}{{! ---------------------------------------------------- }}
+  {{#repeated_numerical_values}}{{! ---------------------------------------- }}
+  { /* Decoding repeated numerical values '{{name}}' */
+    unsigned int count = 0u;
+    const auto val_array = elem->get_array("{{name}}");
+    if (val_array)
+    {
+      for (const auto &val_elem : *val_array)
+      {
+        if (! val_elem->is_value())
+        { throw LoadError("Field {{table_name}}.{{name}} is not a value"); }
+        const auto &val = val_elem->as<TypeCast<{{type}}>::toml>()->get();
+        if ((val < std::numeric_limits<{{type}}>::min()) ||
+            (val > std::numeric_limits<{{type}}>::max()))
+        { throw LoadError("{{table_name}}.{{name}} is not in the numerical range of {{type}}"); }
+        cfg.add_{{name}}(val);
+        count += 1u;
+      }
+    }
+    if (count < {{at_least}} || count > {{at_most}})
+    {
+      throw LoadError("The count of elements in {{table_name}}.{{name}} is "
+                      "not within [{{at_least}};{{at_most}}]");
+    }
+  }
+  {{/repeated_numerical_values}}{{! ---------------------------------------- }}
+  {{#repeated_string_values}}{{! ------------------------------------------- }}
+  { /* Decoding repeated string values '{{name}}' */
+    unsigned int count = 0u;
+    const auto val_array = elem->get_array("{{name}}");
+    if (val_array)
+    {
+      for (const auto &val_elem : *val_array)
+      {
+        if (! val_elem->is_value())
+        { throw LoadError("Field {{table_name}}.{{name}} is not a value"); }
+        const auto &val = val_elem->as<TypeCast<{{type}}>::toml>()->get();
+        cfg.add_{{name}}(val);
+        count += 1u;
+      }
+    }
+    if (count < {{at_least}} || count > {{at_most}})
+    {
+      throw LoadError("The count of elements in {{table_name}}.{{name}} is "
+                      "not within [{{at_least}};{{at_most}}]");
+    }
+  }
+  {{/repeated_string_values}}{{! ------------------------------------------- }}
+  {{#repeated_boolean_values}}{{! ------------------------------------------ }}
+  { /* Decoding repeated boolean values '{{name}}' */
+    unsigned int count = 0u;
+    const auto val_array = elem->get_array("{{name}}");
+    if (val_array)
+    {
+      for (const auto &val_elem : *val_array)
+      {
+        if (! val_elem->is_value())
+        { throw LoadError("Field {{table_name}}.{{name}} is not a value"); }
+        const auto &val = val_elem->as<TypeCast<{{type}}>::toml>()->get();
+        cfg.add_{{name}}(val);
+        count += 1u;
+      }
+    }
+    if (count < {{at_least}} || count > {{at_most}})
+    {
+      throw LoadError("The count of elements in {{table_name}}.{{name}} is "
+                      "not within [{{at_least}};{{at_most}}]");
+    }
+  }
+  {{/repeated_boolean_values}}{{! ------------------------------------------ }}
+  {{#objects}}{{! ---------------------------------------------------------- }}
+  { /* Decoding object '{{name}}' */
+    const auto obj_table = elem->get_table("{{name}}");
+    if (obj_table)
+    {
+      cfg.{{name}} = std::make_unique<{{obj_type}}>();
+      _load_{{type}}(obj_table, *cfg.{{name}});
+    }
+    {{#required}}
+    else
+    { throw LoadError("Failed to find required element '{{name}}' in table '{{table_name}}'"); }
+    {{/required}}
+  }
+  {{/objects}}{{! ---------------------------------------------------------- }}
+  {{#repeated_objects}}{{! ------------------------------------------------- }}
+  { /* Decoding repeated object '{{name}}' */
+    unsigned int count = 0u;
+    const auto table_array = elem->get_table_array("{{name}}");
+    if (table_array)
+    {
+      for (const auto &obj_table : *table_array)
+      {
+        auto obj = std::make_unique<{{obj_type}}>();
+        _load_{{type}}(obj_table, *obj);
+        cfg.{{name}}.push_back(std::move(obj));
+        count += 1u;
+      }
+    }
+    if (count < {{at_least}} || count > {{at_most}})
+    {
+      throw LoadError("The count of elements in {{table_name}}.{{name}} is "
+                      "not within [{{at_least}};{{at_most}}]");
+    }
+  }
+  {{/repeated_objects}}{{! ------------------------------------------------- }}
+  {{#maps}}{{! ------------------------------------------------------------- }}
+  { /* Decoding map "{{name}}" */
+    const auto table = elem->get_table("{{name}}");
+    unsigned int count = 0u;
+    if (table)
+    {
+      for (const auto it : *table)
+      {
+        const {{key_type}} &key = it.first;
+        const std::shared_ptr<cpptoml::base> &base = it.second;
+        if (! base->is_table())
+        { throw LoadError("Element '{{name}}' does not alias to a table"); }
+
+        const auto obj_table = base->as_table();
+
+        auto obj = std::make_unique<{{value_obj_type}}>();
+        obj->{{key_name}} = key;
+        _load_{{value_type}}(obj_table, *obj);
+        cfg.{{name}}.push_back(std::move(obj));
+        count += 1u;
+      }
+    }
+    if (count < {{at_least}} || count > {{at_most}})
+    {
+      throw LoadError("The count of elements in {{message_name}}.{{name}} is "
+                      "not within [{{at_least}};{{at_most}}]");
+    }
+  }
+  {{/maps}}{{! ------------------------------------------------------------- }}
+}
+
+/*****************************************************************************/
+
+{{/tables}}
+{{root_type}} load(const std::string &file)
+{
+  {{root_type}} flatbuffers_cfg;
+  const auto toml_cfg = cpptoml::parse_file(file);
+  _load_{{root_table}}(toml_cfg, flatbuffers_cfg);
+  return flatbuffers_cfg;
+}
+
+} /* namespace protomodel */
