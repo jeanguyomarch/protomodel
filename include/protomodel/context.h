@@ -40,6 +40,7 @@ public:
       {"required", &TableValue<T>::required},
       {"at_least", &TableValue<T>::at_least},
       {"at_most", &TableValue<T>::at_most},
+      {"has_range", &TableValue<T>::has_range},
     });
   }
 
@@ -55,6 +56,9 @@ private:
 
   mstch::node at_most()
   { return INT_MAX; } /* TODO */
+
+  mstch::node has_range()
+  { return std::is_integral<T>::value; }
 
   mstch::node type()
   { return TypeName<T>::name; }
@@ -182,12 +186,8 @@ public:
     register_methods(this, {
       {"table_name", &Table::name},
       {"table_type", &Table::type},
-      {"numerical_values", &Table::numerical_values},
-      {"repeated_numerical_values", &Table::repeated_numerical_values},
-      {"boolean_values", &Table::boolean_values},
-      {"repeated_boolean_values", &Table::repeated_boolean_values},
-      {"string_values", &Table::string_values},
-      {"repeated_string_values", &Table::repeated_string_values},
+      {"values", &Table::values},
+      {"repeated_values", &Table::repeated_values},
       {"objects", &Table::objects},
       {"repeated_objects", &Table::repeated_objects},
       {"maps", &Table::maps},
@@ -198,21 +198,21 @@ public:
   void add_numerical_value(const flatbuffers::FieldDef *field,
                            bool repeated)
   {
-    auto &array = (repeated) ? _repeated_numerical_values : _numerical_values;
+    auto &array = (repeated) ? _repeated_values : _values;
     array.emplace_back(std::make_shared<TableValue<T>>(field));
   }
 
   void add_boolean_value(const flatbuffers::FieldDef *field,
                          bool repeated)
   {
-    auto &array = (repeated) ? _repeated_boolean_values : _boolean_values;
+    auto &array = (repeated) ? _repeated_values : _values;
     array.emplace_back(std::make_shared<TableValue<bool>>(field));
   }
 
   void add_string_value(const flatbuffers::FieldDef *field,
                         bool repeated)
   {
-    auto &array = (repeated) ? _repeated_string_values : _string_values;
+    auto &array = (repeated) ? _repeated_values : _values;
     array.emplace_back(std::make_shared<TableValue<std::string>>(field));
   }
 
@@ -233,23 +233,11 @@ private:
   mstch::node type()
   { return get_object_typename(_obj); }
 
-  mstch::node numerical_values()
-  { return _numerical_values ; }
+  mstch::node values()
+  { return _values; }
 
-  mstch::node repeated_numerical_values()
-  { return _repeated_numerical_values; }
-
-  mstch::node string_values()
-  { return _string_values; }
-
-  mstch::node repeated_string_values()
-  { return _repeated_string_values; }
-
-  mstch::node boolean_values()
-  { return _boolean_values; }
-
-  mstch::node repeated_boolean_values()
-  { return _repeated_boolean_values; }
+  mstch::node repeated_values()
+  { return _repeated_values; }
 
   mstch::node objects()
   { return _objects; }
@@ -261,11 +249,9 @@ private:
   { return _maps; }
 
 private:
-  mstch::array _numerical_values;
+  mstch::array _values;
   mstch::array _repeated_numerical_values;
-  mstch::array _boolean_values;
   mstch::array _repeated_boolean_values;
-  mstch::array _string_values;
   mstch::array _repeated_string_values;
   mstch::array _objects;
   mstch::array _repeated_objects;
