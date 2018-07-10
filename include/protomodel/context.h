@@ -332,11 +332,18 @@ public:
   }
 
   Status load(const std::string &filename,
-              const char *data)
+              const char *data,
+              const std::vector<std::string> &include_dirs)
   {
     assert(nullptr != data);
 
-    if (! _parser.Parse(data))
+    /* Create a char** holding the include directories */
+    std::vector<const char *> dirs; /* FIXME pre-alloc size */
+    for (const auto &include_dir : include_dirs)
+    { dirs.push_back(include_dir.c_str()); }
+    dirs.push_back(nullptr); /* Must be nullptr-terminated */
+
+    if (! _parser.Parse(data, dirs.data()))
     { return error("Failed to parse '" + filename + "': " + _parser.error_); }
 
     if (! _parser.SetRootType("Config"))

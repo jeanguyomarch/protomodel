@@ -28,8 +28,6 @@ _explore_type(std::shared_ptr<Context> &context,
   /* We are in a repeated type IFF the base type is a vector type */
   const bool repeated = type.base_type == flatbuffers::BASE_TYPE_VECTOR;
 
-
-//  const flatbuffers::BaseType base_type = type.base_type;
   switch (base_type)
   {
     case flatbuffers::BASE_TYPE_BOOL:
@@ -72,7 +70,6 @@ _explore_type(std::shared_ptr<Context> &context,
       /* We shouldn't be able to repeat a vector type */
       assert(! repeated && "Repeated vector type is weird");
       ECHECK(_explore_type(context, table, source, field));
-      /* FIXME handle map values */
       break;
 
     case flatbuffers::BASE_TYPE_UTYPE:
@@ -118,7 +115,8 @@ _explore(std::shared_ptr<Context> &context,
 }
 
 std::shared_ptr<Context>
-load(const std::string &filename)
+load(const std::string &filename,
+     const std::vector<std::string> &include_dirs)
 {
   /* Create an IDL parsing context */
   auto opts = flatbuffers::IDLOptions();
@@ -135,7 +133,7 @@ load(const std::string &filename)
   const char *const data = static_cast<const char*>(region.get_address());
 
   /* Load the context */
-  if (! context->load(filename, data).check())
+  if (! context->load(filename, data, include_dirs).check())
   { return nullptr; }
 
   /* We will always include the <model>_generated.h header */

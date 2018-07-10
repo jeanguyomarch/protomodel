@@ -28,6 +28,7 @@ run(int argc, char **argv)
   std::string name_space;
   std::vector<std::string> templates;
   std::vector<std::string> outputs;
+  std::vector<std::string> include_dirs;
 
   cxxopts::Options options(
     "protomodel", "Data Model generator from a flatbuffers interface\n");
@@ -41,6 +42,8 @@ run(int argc, char **argv)
       cxxopts::value<std::vector<std::string>>(outputs))
     ("t,template", "Template to be used to generate the data model loader",
       cxxopts::value<std::vector<std::string>>(templates))
+    ("I", "Flatbuffers include directories",
+      cxxopts::value<std::vector<std::string>>(include_dirs))
     ("file", "Flatbuffers interface",
       cxxopts::value<std::string>(file))
   ;
@@ -67,7 +70,9 @@ run(int argc, char **argv)
 
   /***************************************************************************/
   /* Templating */
-  const auto context = load(file);
+  const auto context = load(file, include_dirs);
+  if (! context)
+  { return error("protomodel context creation failed"); }
 
   assert(templates.size() == outputs.size());
   for (size_t i = 0u; i < templates.size(); i++)
@@ -80,7 +85,6 @@ run(int argc, char **argv)
     outfile << mstch::render(buffer.str(), context);
     outfile.close();
   }
-
 
   return Ok();
 }

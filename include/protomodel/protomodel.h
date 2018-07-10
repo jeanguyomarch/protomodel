@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace protomodel {
 
@@ -14,10 +15,12 @@ class Context;
  * Load a flatbuffer interface file @p filename.
  *
  * @param[in] filename Path to the flatbuffer interface
+ * @param[in] include_dirs Include directories used by flatbuffers
  * @return A shared pointer to a protomodel context. Will return nullptr on
  *   failure.
  */
-std::shared_ptr<Context> load(const std::string &filename);
+std::shared_ptr<Context> load(const std::string &filename,
+                              const std::vector<std::string> &include_dirs);
 
 /**
  * Retrieve the name of the model from its definition filename
