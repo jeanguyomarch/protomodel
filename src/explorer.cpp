@@ -31,40 +31,40 @@ _explore_type(std::shared_ptr<Context> &context,
   switch (base_type)
   {
     case flatbuffers::BASE_TYPE_BOOL:
-      table->add_boolean_value(field, repeated);
+      table->add_value<bool>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_CHAR:
-      table->add_numerical_value<int8_t>(field, repeated);
+      table->add_value<int8_t>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_UCHAR:
-      table->add_numerical_value<uint8_t>(field, repeated);
+      table->add_value<uint8_t>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_SHORT:
-      table->add_numerical_value<int16_t>(field, repeated);
+      table->add_value<int16_t>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_USHORT:
-      table->add_numerical_value<uint16_t>(field, repeated);
+      table->add_value<uint16_t>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_INT:
-      table->add_numerical_value<int32_t>(field, repeated);
+      table->add_value<int32_t>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_UINT:
-      table->add_numerical_value<uint32_t>(field, repeated);
+      table->add_value<uint32_t>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_LONG:
-      table->add_numerical_value<int64_t>(field, repeated);
+      table->add_value<int64_t>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_ULONG:
-      table->add_numerical_value<uint64_t>(field, repeated);
+      table->add_value<uint64_t>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_FLOAT:
-      table->add_numerical_value<float>(field, repeated);
+      table->add_value<float>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_DOUBLE:
-      table->add_numerical_value<double>(field, repeated);
+      table->add_value<double>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_STRING:
-      table->add_string_value(field, repeated);
+      table->add_value<std::string>(field, repeated);
       break;
     case flatbuffers::BASE_TYPE_VECTOR:
       /* We shouldn't be able to repeat a vector type */

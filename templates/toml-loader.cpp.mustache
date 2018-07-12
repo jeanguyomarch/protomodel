@@ -91,7 +91,7 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
   }
   {{/values}}{{! ----------------------------------------------------------- }}
   {{#repeated_values}}{{! -------------------------------------------------- }}
-  { /* Decoding repeated numerical values '{{name}}' */
+  { /* Decoding repeated values '{{name}}' */
     unsigned int count = 0u;
     const auto val_array = elem->get_array("{{name}}");
     if (val_array)
@@ -106,7 +106,7 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
             (val > std::numeric_limits<{{type}}>::max()))
         { throw LoadError("{{table_name}}.{{name}} is not in the numerical range of {{type}}"); }
         {{/has_range}}
-        cfg.add_{{name}}(val);
+        cfg.{{name}}.emplace_back(val);
         count += 1u;
       }
     }
@@ -143,6 +143,9 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
         count += 1u;
       }
     }
+    else if (elem->contains("{{name}}"))
+    { throw LoadError("{{table_name}}.{{name}} is of invalid type"); }
+
     _check_count("{{table_name}}.{{name}}", count, {{at_least}}u, {{at_most}}u);
     visited_keys.erase("{{name}}");
   }
@@ -178,7 +181,7 @@ _load_{{table_name}}(const std::shared_ptr<cpptoml::table> &elem, ::{{table_type
   {
     std::string msg{ "Unknown elements in instantiation of {{table_name}}:" };
     for (const auto &key : visited_keys)
-    { msg += ' ' + key; }
+    { msg += " '" + key + "'"; }
     throw LoadError(msg);
   }
 }

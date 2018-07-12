@@ -195,25 +195,11 @@ public:
   }
 
   template<typename T>
-  void add_numerical_value(const flatbuffers::FieldDef *field,
-                           bool repeated)
+  void add_value(const flatbuffers::FieldDef *field,
+                 bool repeated)
   {
     auto &array = (repeated) ? _repeated_values : _values;
     array.emplace_back(std::make_shared<TableValue<T>>(field));
-  }
-
-  void add_boolean_value(const flatbuffers::FieldDef *field,
-                         bool repeated)
-  {
-    auto &array = (repeated) ? _repeated_values : _values;
-    array.emplace_back(std::make_shared<TableValue<bool>>(field));
-  }
-
-  void add_string_value(const flatbuffers::FieldDef *field,
-                        bool repeated)
-  {
-    auto &array = (repeated) ? _repeated_values : _values;
-    array.emplace_back(std::make_shared<TableValue<std::string>>(field));
   }
 
   void add_object(const flatbuffers::FieldDef *field,
@@ -250,9 +236,7 @@ private:
 
 private:
   mstch::array _values;
-  mstch::array _repeated_numerical_values;
-  mstch::array _repeated_boolean_values;
-  mstch::array _repeated_string_values;
+  mstch::array _repeated_values;
   mstch::array _objects;
   mstch::array _repeated_objects;
   mstch::array _maps;
