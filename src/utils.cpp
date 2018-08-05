@@ -3,6 +3,7 @@
 #include "protomodel/protomodel.h"
 
 #include <string>
+#include <cassert>
 #include <cstdint>
 
 namespace protomodel {
@@ -52,6 +53,30 @@ get_model_name(const std::string &filename)
   return filename.substr(start, end - start);
 }
 
+std::string
+get_pascal_case(const std::string &input)
+{
+  std::string pascal; /* FIXME prealloc */
+  bool make_upper = true;
 
+  for (const auto &c : input)
+  {
+    assert(isprint(c));
+    if (isalpha(c) && make_upper)
+    {
+      pascal += static_cast<char>(toupper(c));
+      make_upper = false;
+    }
+    else if (c == '_')
+    {
+      make_upper = true;
+      continue;
+    }
+    else
+    { pascal += c; }
+  }
+
+  return pascal;
+}
 
 } /* namespace protomodel */

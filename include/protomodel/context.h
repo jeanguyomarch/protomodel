@@ -36,6 +36,7 @@ public:
   {
      mstch::object::register_methods(this, {
       {"name", &TableValue<T>::name},
+      {"py_name", &TableValue<T>::py_name},
       {"type", &TableValue<T>::type},
       {"required", &TableValue<T>::required},
       {"at_least", &TableValue<T>::at_least},
@@ -47,6 +48,9 @@ public:
 private:
   mstch::node name()
   { return _field->name; }
+
+  mstch::node py_name()
+  { return get_pascal_case(_field->name); }
 
   mstch::node required()
   { return (_field->attributes.Lookup("key")) ? false : _field->required; }
@@ -78,6 +82,7 @@ public:
   {
     register_methods(this, {
       {"name", &TableMap::name},
+      {"py_name", &TableMap::py_name},
       {"key_name", &TableMap::key_name},
       {"key_type", &TableMap::key_type},
       {"value_type", &TableMap::value_type},
@@ -90,6 +95,9 @@ public:
 private:
   mstch::node name()
   { return _base->name; }
+
+  mstch::node py_name()
+  { return get_pascal_case(_base->name); }
 
   mstch::node key_type()
   { return TypeName<std::string>::name; } // FIXME scalar
@@ -132,6 +140,7 @@ public:
   {
     register_methods(this, {
       {"name", &TableObject::name},
+      {"py_name", &TableObject::py_name},
       {"type", &TableObject::type},
       {"obj_type", &TableObject::obj_type},
       {"required", &TableObject::required},
@@ -143,6 +152,9 @@ public:
 private:
   mstch::node name()
   { return _base->name; }
+
+  mstch::node py_name()
+  { return get_pascal_case(_base->name); }
 
   mstch::node type()
   { return _obj->name; }
@@ -286,7 +298,8 @@ public:
       {"tables", &Context::tables},
       {"root_type", &Context::root_type},
       {"root_table", &Context::root_table},
-      {"name", &Context::name},
+      {"model_name", &Context::model_name},
+      {"magic", &Context::magic},
     });
   }
 
@@ -329,8 +342,11 @@ public:
   { return _parser; }
 
 private:
-  mstch::node name()
+  mstch::node model_name()
   { return _model_name; }
+
+  mstch::node magic()
+  { return _parser.file_identifier_; }
 
   mstch::node root_table()
   { return _parser.root_struct_def_->name; }

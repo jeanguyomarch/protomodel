@@ -31,6 +31,15 @@ std::shared_ptr<Context> load(const std::string &filename,
 std::string get_model_name(const std::string &filename);
 
 /**
+ * Transform a flatbuffer identifier into a pascal-case string.
+ *
+ * @param[in] input Input string to be converted
+ * @return A pascal-case identifier
+ * @note This is needed for python templating
+ */
+std::string get_pascal_case(const std::string &input);
+
+/**
  * Utility template that allows to retrieve a textual description of a native
  * type.
  *
