@@ -1,5 +1,8 @@
 # protomodel
 
+[![Build Status](https://api.travis-ci.org/jeanguyomarch/protomodel.svg?branch=master)](https://travis-ci.org/jeanguyomarch/protomodel)
+
+
 Protomodel is a [flatbuffers][2] compiler-assistant that parses the
 [flatbuffers' IDL][3] to extract its significant information and make them
 available to a templating engine. Information contained within a flatbuffers
