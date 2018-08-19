@@ -8,6 +8,7 @@
 #include <flatbuffers/flatbuffers.h>
 #include <flatbuffers/idl.h>
 #include <mstch/mstch.hpp>
+#include <exception>
 
 namespace protomodel {
 
@@ -109,7 +110,7 @@ private:
       if (field->attributes.Lookup("key"))
       { return field->name; }
     }
-    assert(false && "Failed to find a 'key' attribute"); // XXX
+    throw std::invalid_argument("Failed to find a 'key' attribute");
   }
 
   mstch::node value_obj_type()

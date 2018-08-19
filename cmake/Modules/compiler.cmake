@@ -11,7 +11,6 @@ function (set_default_compiler_options Target)
       -Wconversion
       -Wcast-align
       -Wlogical-op
-      -Wunsafe-loop-optimizations
       -Wdouble-promotion
       -Wformat=2
       -fstrict-enums
