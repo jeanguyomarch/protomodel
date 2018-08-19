@@ -12,8 +12,9 @@ include(compiler)
 ###############################################################################
 # Dependencies
 ###############################################################################
-add_subdirectory(third_parties/mstch)
-add_subdirectory(third_parties/flatbuffers)
+
+find_package(Mstch REQUIRED)
+find_package(Flatbuffers REQUIRED)
 
 ###############################################################################
 # Compile protomodel
@@ -23,14 +24,14 @@ add_executable(protomodel
   src/explorer.cpp
   src/utils.cpp)
 set_default_compiler_options(protomodel)
-target_link_libraries(protomodel mstch flatbuffers)
+target_link_libraries(protomodel ${MSTCH_LIBRARIES} ${FLATBUFFERS_LIBRARIES})
 target_include_directories(protomodel PUBLIC
   ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(protomodel
   SYSTEM PRIVATE
-  ${mstch_INCLUDE_DIR}
-  third_parties/include
-  third_parties/flatbuffers/include)
+  ${MSTCH_INCLUDE_DIRS}
+  ${FLATBUFFERS_INCLUDE_DIRS}
+  third_parties/include)
 target_compile_definitions(protomodel PRIVATE
   VERSION=\"${PROJECT_VERSION}\")
 
